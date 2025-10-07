@@ -1,0 +1,32 @@
+name: Pylint (PR to dev)
+
+on:
+  pull_request:
+    branches:
+      - dev
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install pylint
+        run: |
+          python -m pip install --upgrade pip
+          pip install pylint
+
+      - name: Run pylint on tracked Python files (if any)
+        run: |
+          PY_FILES="$(git ls-files '*.py')"
+          if [ -z "$PY_FILES" ]; then
+            echo "No Python files to lint. Skipping."
+          else
+            pylint $PY_FILES || true
+          fi
